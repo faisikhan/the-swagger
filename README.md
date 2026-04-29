@@ -1,215 +1,227 @@
-# The Swagger
+# The Swagger – Project Management Platform
 
-> Deliver every project on time and on budget — a unified workspace for design and construction teams to plan phases, track budgets, manage milestones, and keep every stakeholder aligned.
+A full-stack project management platform built for design & construction teams. Manage projects, track budgets, assign tasks, and collaborate across roles — all in one place.
+
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![NestJS](https://img.shields.io/badge/NestJS-11-red?logo=nestjs)
+![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-blue?logo=postgresql)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss)
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| **Backend** | NestJS 11, PostgreSQL 16, Prisma 7.4.2 |
-| **Frontend** | Next.js 16, React 19, Tailwind CSS 4 |
-| **Auth** | JWT with HTTP-only cookies |
-| **Monorepo** | Nx 22 with pnpm |
-| **Code Quality** | Biome (lint + format), Husky, lint-staged |
-| **Database** | PostgreSQL 16 (Docker) |
+|---|---|
+| Frontend | Next.js 16, React 19, Tailwind CSS v4, Radix UI |
+| Backend | NestJS 11, Passport.js, JWT (HTTP-only cookies) |
+| Database | PostgreSQL + Prisma ORM |
+| Monorepo | pnpm workspaces + Nx |
+| Linting | Biome |
 
 ---
 
-## 📦 Prerequisites
-
-- **Node.js** v20 or higher
-- **pnpm** v9 or higher
-- **Docker** (for PostgreSQL)
-
----
-
-## 🚀 First-Time Setup
-
-### Step 1 — Clone & Install
-
-```bash
-git clone <repository-url>
-cd the-swagger
-pnpm install
-```
-
-### Step 2 — Start PostgreSQL
-
-```bash
-docker compose up -d
-docker ps   # verify it's running
-```
-
-### Step 3 — Configure Environment
-
-```bash
-cd apps/api
-cp .env.example .env
-# Edit .env if needed (JWT secret, cookie secret)
-```
-
-### Step 4 — Initialise Database
-
-```bash
-cd apps/api
-npx prisma migrate dev --name init
-npx prisma generate
-```
-
-### Step 5 — Seed Test Data
-
-```bash
-cd ../..
-pnpm run db:seed
-```
-
-### Step 6 — Start Development
-
-```bash
-pnpm nx run-many -t serve,dev
-```
-
----
-
-## 💻 Development URLs
-
-| Service | URL |
-|---------|-----|
-| **Frontend** | http://localhost:4000 |
-| **Backend API** | http://localhost:4200/api/v1 |
-| **Swagger Docs** | http://localhost:4200/api/docs |
-
----
-
-## 🔑 Test Credentials
-
-All accounts use password: `Password123!`
-
-| Email | Role |
-|-------|------|
-| `admin@thedesigncode.studio` | ADMIN |
-| `manager@thedesigncode.studio` | DESIGN_MANAGER |
-| `client@thedesigncode.studio` | CLIENT |
-| `contractor@thedesigncode.studio` | CONTRACTOR |
-| `viewer@thedesigncode.studio` | VIEWER |
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 the-swagger/
 ├── apps/
-│   ├── api/                    # NestJS backend
-│   │   ├── src/
-│   │   │   ├── auth/           # JWT auth (login, register, me, logout)
-│   │   │   ├── users/          # User CRUD + role management
-│   │   │   ├── projects/       # Projects + member management
-│   │   │   ├── milestones/     # Milestone tracking
-│   │   │   ├── tasks/          # Task management + comments
-│   │   │   ├── prisma/         # Prisma client service (global)
-│   │   │   └── common/         # Guards, decorators, filters
-│   │   └── prisma/
-│   │       ├── schema.prisma   # Full DB schema
-│   │       └── seed.ts         # Test data seeder
-│   └── web/                    # Next.js frontend
-│       └── src/
-│           ├── app/
-│           │   ├── (auth)/     # Login page
-│           │   └── (dashboard)/# Protected workspace
-│           ├── hooks/          # useAuth context
-│           └── lib/            # API client, utils
-├── libs/
-│   └── shared/                 # Shared TypeScript types & constants
-├── docker-compose.yml
-├── biome.json
-└── nx.json
+│   ├── api/          # NestJS backend (port 4200)
+│   └── web/          # Next.js frontend (port 4000)
+├── packages/
+│   └── shared/       # Shared types & constants
+├── pnpm-workspace.yaml
+└── package.json
 ```
 
 ---
 
-## 🔐 Role Permissions
+## Prerequisites
 
-| Action | ADMIN | DESIGN_MANAGER | CONTRACTOR | CLIENT | VIEWER |
-|--------|-------|----------------|------------|--------|--------|
-| View all projects | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Create project | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Edit project | ✅ | ✅ (own) | ❌ | ❌ | ❌ |
-| Manage members | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Create tasks | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Update tasks | ✅ | ✅ | ✅ (assigned) | ❌ | ❌ |
-| Add comments | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Change user roles | ✅ | ❌ | ❌ | ❌ | ❌ |
+- Node.js >= 18
+- pnpm >= 9 (`npm install -g pnpm`)
+- PostgreSQL running locally
 
 ---
 
-## 🗄 Database Management
+## Getting Started
 
-### Prisma Studio (GUI)
+### 1. Clone the repo
 
 ```bash
+git clone https://github.com/your-username/the-swagger.git
+cd the-swagger
+```
+
+### 2. Install dependencies
+
+```bash
+pnpm install
+```
+
+### 3. Set up environment variables
+
+**API** — create `apps/api/.env`:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/the_swagger_dev?schema=public"
+JWT_SECRET="your-super-secret-jwt-key-change-in-production"
+JWT_EXPIRES_IN="7d"
+PORT=4200
+NODE_ENV=development
+COOKIE_SECRET="your-cookie-secret-change-in-production"
+CORS_ORIGIN=http://localhost:4000
+```
+
+> No `.env` is needed for the web app in local development.
+
+### 4. Set up the database
+
+```bash
+# Run migrations
 cd apps/api
-npx prisma studio
-# Opens at http://localhost:5555
+npx prisma migrate dev
+
+# Seed test data
+cd ../..
+pnpm db:seed
 ```
 
-### DBeaver (recommended)
+### 5. Start the development servers
 
-Connect with:
-- **Host:** `localhost:5432`
-- **Database:** `the_swagger_dev`
-- **Username / Password:** `postgres`
+```bash
+pnpm dev
+```
+
+This starts both the API (port 4200) and the web app (port 4000) concurrently.
+
+Open [http://localhost:4000](http://localhost:4000) in your browser.
 
 ---
 
-## ✅ Code Quality
+## Test Accounts
 
-```bash
-pnpm check          # lint + format check
-pnpm check:fix      # auto-fix all issues
-pnpm format         # format only
-pnpm lint           # lint only
+All test accounts use the password: **`Password123!`**
+
 ```
-
-Pre-commit hooks (Husky + lint-staged) run automatically on `git commit`.
-
----
-
-## 🧪 Running Services Individually
-
-```bash
-pnpm nx dev web      # Frontend only
-pnpm nx serve api    # Backend only
-pnpm nx run-many -t serve,dev   # Both in parallel
-```
-
-## 🏗 Build for Production
-
-```bash
-pnpm nx run-many -t build
+─────────────────────────────────────────────
+Test Credentials (all passwords: Password123!)
+─────────────────────────────────────────────
+admin@devopsmolvi.com       → ADMIN
+manager@devopsmolvi.com     → DESIGN_MANAGER
+client@devopsmolvi.com      → CLIENT
+contractor@devopsmolvi.com  → CONTRACTOR
+viewer@devopsmolvi.com      → VIEWER
+─────────────────────────────────────────────
 ```
 
 ---
 
-## 🐛 Troubleshooting
+## Available Scripts
 
-**Database not connecting?**
-```bash
-docker ps                  # check container is running
-docker compose up -d       # start if stopped
+Run these from the project root:
+
+| Command | Description |
+|---|---|
+| `pnpm dev` | Start both API and web in dev mode |
+| `pnpm build` | Build both apps for production |
+| `pnpm db:seed` | Seed the database with test data |
+| `pnpm lint` | Lint with Biome |
+| `pnpm format` | Format with Biome |
+| `pnpm check:fix` | Lint + format fix |
+
+---
+
+## API
+
+- Base URL: `http://localhost:4200/api/v1`
+- Swagger Docs: [http://localhost:4200/api/docs](http://localhost:4200/api/docs)
+- Auth: HTTP-only cookie (`access_token`) set on login
+
+### Key Endpoints
+
+| Method | Route | Description |
+|---|---|---|
+| POST | `/api/v1/auth/login` | Login |
+| POST | `/api/v1/auth/logout` | Logout |
+| GET | `/api/v1/auth/me` | Current user |
+| GET | `/api/v1/projects` | List projects |
+| POST | `/api/v1/projects` | Create project |
+| GET | `/api/v1/projects/:id` | Get project |
+| GET | `/api/v1/projects/:id/tasks` | List tasks |
+| GET | `/api/v1/users` | List users |
+
+---
+
+## Deployment (Ubuntu/EC2)
+
+### Nginx config
+
+```nginx
+server {
+    listen 80;
+    server_name your-server-ip-or-domain;
+
+    location /api/ {
+        proxy_pass http://localhost:4200/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location / {
+        proxy_pass http://localhost:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
 ```
 
-**Port already in use?**
+### Running with PM2
+
 ```bash
-# macOS / Linux
-lsof -ti:4200 | xargs kill -9
-lsof -ti:4000 | xargs kill -9
+npm install -g pm2
+
+# Build the web app first
+cd apps/web && pnpm build && cd ../..
+
+# Start both processes
+pm2 start "pnpm run start -- -p 4000" --name web --cwd apps/web
+pm2 start "pnpm run start:prod" --name api --cwd apps/api
+
+pm2 save
+pm2 startup
 ```
 
-**Prisma client out of date?**
-```bash
-cd apps/api
-npx prisma generate
+### Production environment variables
+
+Update `apps/api/.env` for production:
+
+```env
+NODE_ENV=production
+CORS_ORIGIN=http://your-server-ip
 ```
+
+> Once you add HTTPS/SSL, update the cookie options in `apps/api/src/auth/auth.service.ts` to re-enable `secure: true` and `sameSite: 'strict'`.
+
+---
+
+## Features
+
+- JWT authentication via HTTP-only cookies
+- Role-based access (Admin, Design Manager, Client, Contractor, Viewer)
+- Project management with status tracking and budget monitoring
+- Task management per project with comments
+- Team/user management
+- Swagger API documentation
+- Monorepo with shared types between frontend and backend
+
+---
+
+## License
+
+MIT
