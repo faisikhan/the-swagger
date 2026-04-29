@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@the-swagger/shared": ["../../libs/shared/src/index.ts"]
+    }
+  },
+  "include": ["src", "next.config.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

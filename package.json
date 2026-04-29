@@ -1,0 +1,38 @@
+{
+  "name": "the-swagger",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm nx run-many -t serve,dev",
+    "build": "pnpm nx run-many -t build",
+    "test": "pnpm nx run-many -t test",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "db:seed": "cd apps/api && npx ts-node prisma/seed.ts",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@nx/esbuild": "^22.7.1",
+    "@nx/eslint": "^22.0.0",
+    "@nx/jest": "^22.0.0",
+    "@nx/js": "^22.7.1",
+    "@nx/nest": "^22.0.0",
+    "@nx/next": "^22.0.0",
+    "@nx/node": "^22.0.0",
+    "@nx/webpack": "^22.7.1",
+    "@nx/workspace": "^22.0.0",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.3.0",
+    "nx": "^22.0.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
+  }
+}
