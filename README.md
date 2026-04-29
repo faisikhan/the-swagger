@@ -225,7 +225,12 @@ CORS_ORIGIN=http://your-server-ip
 The app as in the final live version :)
 
 <img width="1521" height="836" alt="image" src="https://github.com/user-attachments/assets/051c2b8c-968b-47c5-abe5-50b3bbfdee0c" />
+
 <img width="1274" height="845" alt="image" src="https://github.com/user-attachments/assets/f9b2f24d-6e2f-46b7-a684-62e658fe9600" />
+
+<img width="1860" height="736" alt="image" src="https://github.com/user-attachments/assets/d8f63d34-faaf-4386-b0a7-6f41a112cd51" />
+
+<img width="1883" height="807" alt="image" src="https://github.com/user-attachments/assets/5d11c722-79e4-453b-92ba-a0100377f72e" />
 
 
 
