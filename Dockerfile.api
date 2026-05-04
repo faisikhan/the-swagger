@@ -15,7 +15,7 @@ COPY --from=deps /app/.npmrc ./.npmrc
 COPY . .
 RUN pnpm --filter @the-swagger/api install --frozen-lockfile
 RUN if [ -f apps/api/prisma/schema.prisma ]; then \
-      node_modules/.bin/prisma generate --schema=apps/api/prisma/schema.prisma; \
+      apps/api/node_modules/.bin/prisma generate --schema=apps/api/prisma/schema.prisma; \
     fi
 RUN pnpm --filter @the-swagger/shared build 2>/dev/null || true
 RUN pnpm --filter @the-swagger/api build
