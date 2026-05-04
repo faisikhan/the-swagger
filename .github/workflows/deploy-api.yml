@@ -45,7 +45,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -f docker/Dockerfile.api \
+            -f Dockerfile.api \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
             .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
