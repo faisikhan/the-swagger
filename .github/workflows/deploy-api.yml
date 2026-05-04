@@ -1,4 +1,4 @@
-name: Deploy API to ECS
+name: Deploy Swagger API to ECS
 
 on:
   push:
