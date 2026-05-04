@@ -1,59 +1,42 @@
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
-
 RUN npm install -g pnpm@latest --quiet
 RUN pnpm install --frozen-lockfile
 
 FROM node:20-alpine AS builder
 WORKDIR /app
-
 RUN npm install -g pnpm@latest --quiet
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
 RUN if [ -f apps/api/prisma/schema.prisma ]; then \
-      npx prisma generate --schema=apps/api/prisma/schema.prisma; \
+      pnpm --filter @the-swagger/api exec prisma generate --schema=./prisma/schema.prisma; \
     fi
-
 RUN pnpm --filter @the-swagger/shared build 2>/dev/null || true
 RUN pnpm --filter @the-swagger/api build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
-
 RUN apk add --no-cache wget
-
 ENV NODE_ENV=production
 ENV PORT=4200
-
 RUN npm install -g pnpm@latest --quiet
-
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
 RUN pnpm install --frozen-lockfile --prod
-
 COPY --from=builder /app/apps/api/dist         ./apps/api/dist
 COPY --from=builder /app/libs/shared/dist      ./libs/shared/dist 2>/dev/null || true
-
 COPY --from=builder /app/node_modules/.prisma  ./node_modules/.prisma 2>/dev/null || true
 COPY --from=builder /app/node_modules/@prisma  ./node_modules/@prisma 2>/dev/null || true
 COPY --from=builder /app/apps/api/prisma       ./apps/api/prisma       2>/dev/null || true
-
-
 RUN addgroup --system --gid 1001 nodejs \
  && adduser  --system --uid 1001 nestjs
 USER nestjs
-
 EXPOSE 4200
-
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD wget -qO- http://localhost:4200/api/v1/health || exit 1
-
 CMD ["node", "apps/api/dist/main.js"]
