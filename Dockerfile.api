@@ -1,7 +1,7 @@
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
 RUN npm install -g pnpm@latest --quiet
@@ -11,7 +11,9 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 RUN npm install -g pnpm@latest --quiet
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/.npmrc ./.npmrc
 COPY . .
+RUN pnpm --filter @the-swagger/api install --frozen-lockfile
 RUN if [ -f apps/api/prisma/schema.prisma ]; then \
       node_modules/.bin/prisma generate --schema=apps/api/prisma/schema.prisma; \
     fi
@@ -24,7 +26,7 @@ RUN apk add --no-cache wget
 ENV NODE_ENV=production
 ENV PORT=4200
 RUN npm install -g pnpm@latest --quiet
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
 RUN pnpm install --frozen-lockfile --prod
