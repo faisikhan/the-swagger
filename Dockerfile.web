@@ -1,7 +1,7 @@
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/web/package.json ./apps/web/
 COPY libs/shared/package.json ./libs/shared/
 RUN npm install -g pnpm@latest --quiet
@@ -11,7 +11,9 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 RUN npm install -g pnpm@latest --quiet
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/.npmrc ./.npmrc
 COPY . .
+RUN pnpm --filter @the-swagger/web install --frozen-lockfile
 RUN pnpm --filter @the-swagger/shared build 2>/dev/null || true
 RUN pnpm --filter @the-swagger/web build
 
