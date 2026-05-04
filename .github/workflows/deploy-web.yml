@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ap-south-1
   ECR_REPOSITORY: the-swagger-web
   ECS_CLUSTER: the-swagger-cluster
   ECS_SERVICE: the-swagger-web-service
@@ -53,32 +53,31 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Download current ECS task definition
-        run: |
-          aws ecs describe-task-definition \
-            --task-definition the-swagger-web \
-            --query taskDefinition \
-            > ecs/task-definition-web-current.json
+      # - name: Download current ECS task definition
+      #   run: |
+      #     aws ecs describe-task-definition \
+      #       --task-definition the-swagger-web \
+      #       --query taskDefinition \
+      #       > ecs/task-definition-web-current.json
 
-      - name: Update ECS task definition with new image
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ecs/task-definition-web-current.json
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
+      # - name: Update ECS task definition with new image
+      #   id: task-def
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   with:
+      #     task-definition: ecs/task-definition-web-current.json
+      #     container-name: ${{ env.CONTAINER_NAME }}
+      #     image: ${{ steps.build-image.outputs.image }}
 
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+      # - name: Deploy to ECS
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      #   with:
+      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
+      #     service: ${{ env.ECS_SERVICE }}
+      #     cluster: ${{ env.ECS_CLUSTER }}
+      #     wait-for-service-stability: true
 
-      - name: Deployment summary
-        run: |
-          echo "✅ Web deployed successfully"
-          echo "Image: ${{ steps.build-image.outputs.image }}"
-          echo "Cluster: ${{ env.ECS_CLUSTER }}"
-          echo "Service: ${{ env.ECS_SERVICE }}"
+      # - name: Deployment summary
+      #   run: |
+      #     echo "Image: ${{ steps.build-image.outputs.image }}"
+      #     echo "Cluster: ${{ env.ECS_CLUSTER }}"
+      #     echo "Service: ${{ env.ECS_SERVICE }}"
