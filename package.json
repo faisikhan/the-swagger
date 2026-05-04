@@ -12,7 +12,7 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "db:seed": "cd apps/api && npx ts-node prisma/seed.ts",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
