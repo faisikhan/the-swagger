@@ -30,13 +30,14 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
 RUN pnpm install --frozen-lockfile --prod
-COPY --from=builder /app/apps/api/dist         ./apps/api/dist
-COPY --from=builder /app/libs/shared/dist      ./libs/shared/dist 2>/dev/null || true
-COPY --from=builder /app/node_modules/.prisma  ./node_modules/.prisma 2>/dev/null || true
-COPY --from=builder /app/node_modules/@prisma  ./node_modules/@prisma 2>/dev/null || true
-COPY --from=builder /app/apps/api/prisma       ./apps/api/prisma       2>/dev/null || true
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+RUN mkdir -p ./libs/shared/dist ./node_modules/.prisma ./node_modules/@prisma ./apps/api/prisma
+RUN cp -r /app/libs/shared/dist ./libs/shared/ 2>/dev/null || true
+RUN cp -r /app/node_modules/.prisma ./node_modules/ 2>/dev/null || true
+RUN cp -r /app/node_modules/@prisma ./node_modules/ 2>/dev/null || true
+RUN cp -r /app/apps/api/prisma ./apps/api/ 2>/dev/null || true
 RUN addgroup --system --gid 1001 nodejs \
- && adduser  --system --uid 1001 nestjs
+ && adduser --system --uid 1001 nestjs
 USER nestjs
 EXPOSE 4200
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
