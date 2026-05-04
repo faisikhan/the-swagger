@@ -4,11 +4,11 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::559050236729:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "the-swagger-web",
-      "image": "ACCOUNT_ID.dkr.ecr.AWS_REGION.amazonaws.com/the-swagger-web:latest",
+      "image": "559050236729.dkr.ecr.ap-south-1.amazonaws.com/the-swagger-web:latest",
       "essential": true,
       "portMappings": [
         {
@@ -29,7 +29,7 @@
         "logDriver": "awslogs",
         "options": {
           "awslogs-group": "/ecs/the-swagger-web",
-          "awslogs-region": "AWS_REGION",
+          "awslogs-region": "ap-south-1",
           "awslogs-stream-prefix": "ecs"
         }
       },
