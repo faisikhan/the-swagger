@@ -13,7 +13,7 @@ RUN npm install -g pnpm@latest --quiet
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN if [ -f apps/api/prisma/schema.prisma ]; then \
-      pnpm --filter @the-swagger/api exec prisma generate --schema=./prisma/schema.prisma; \
+      node_modules/.bin/prisma generate --schema=apps/api/prisma/schema.prisma; \
     fi
 RUN pnpm --filter @the-swagger/shared build 2>/dev/null || true
 RUN pnpm --filter @the-swagger/api build
