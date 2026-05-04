@@ -1,11 +1,7 @@
-# ─────────────────────────────────────────────
-# Stage 1: deps — install ALL workspace deps
-# ─────────────────────────────────────────────
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy workspace manifests only (for better layer caching)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
@@ -13,9 +9,6 @@ COPY libs/shared/package.json ./libs/shared/
 RUN npm install -g pnpm@latest --quiet
 RUN pnpm install --frozen-lockfile
 
-# ─────────────────────────────────────────────
-# Stage 2: builder — compile shared lib + API
-# ─────────────────────────────────────────────
 FROM node:20-alpine AS builder
 WORKDIR /app
 
@@ -24,22 +17,16 @@ RUN npm install -g pnpm@latest --quiet
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client (runs only if schema exists)
 RUN if [ -f apps/api/prisma/schema.prisma ]; then \
       npx prisma generate --schema=apps/api/prisma/schema.prisma; \
     fi
 
-# Build shared types first, then NestJS API
 RUN pnpm --filter @the-swagger/shared build 2>/dev/null || true
 RUN pnpm --filter @the-swagger/api build
 
-# ─────────────────────────────────────────────
-# Stage 3: runner — lean production image
-# ─────────────────────────────────────────────
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# wget needed for health check
 RUN apk add --no-cache wget
 
 ENV NODE_ENV=production
@@ -47,22 +34,19 @@ ENV PORT=4200
 
 RUN npm install -g pnpm@latest --quiet
 
-# Copy manifests and install prod deps only
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
 RUN pnpm install --frozen-lockfile --prod
 
-# Copy compiled output from builder
 COPY --from=builder /app/apps/api/dist         ./apps/api/dist
 COPY --from=builder /app/libs/shared/dist      ./libs/shared/dist 2>/dev/null || true
 
-# Prisma client (only relevant if Prisma is used)
 COPY --from=builder /app/node_modules/.prisma  ./node_modules/.prisma 2>/dev/null || true
 COPY --from=builder /app/node_modules/@prisma  ./node_modules/@prisma 2>/dev/null || true
 COPY --from=builder /app/apps/api/prisma       ./apps/api/prisma       2>/dev/null || true
 
-# Run as non-root
+
 RUN addgroup --system --gid 1001 nodejs \
  && adduser  --system --uid 1001 nestjs
 USER nestjs
