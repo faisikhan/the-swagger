@@ -3,11 +3,9 @@ import path from 'path';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  outputFileTracingRoot: path.join(__dirname, '../../'),
   reactStrictMode: true,
   allowedDevOrigins: ['54.198.149.55'],
-  experimental: {
-    outputFileTracingRoot: path.join(__dirname, '../../'),
-  },
   async rewrites() {
     return [
       {
