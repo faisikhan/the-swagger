@@ -2,7 +2,7 @@ name: Deploy Swagger API to ECS
 
 on:
   push:
-    branches: [mainnnn]
+    branches: [main]
     paths:
       - 'apps/api/**'
       - 'libs/shared/**'
