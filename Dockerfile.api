@@ -5,11 +5,11 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
 RUN npm install -g pnpm@latest --quiet
-RUN echo "allow-build[]=@nestjs/core" >> .npmrc && \
-    echo "allow-build[]=@prisma/client" >> .npmrc && \
-    echo "allow-build[]=@prisma/engines" >> .npmrc && \
-    echo "allow-build[]=prisma" >> .npmrc && \
-    echo "allow-build[]=@scarf/scarf" >> .npmrc
+RUN echo "onlyBuiltDependencies[]=@nestjs/core" >> .npmrc && \
+    echo "onlyBuiltDependencies[]=@prisma/client" >> .npmrc && \
+    echo "onlyBuiltDependencies[]=@prisma/engines" >> .npmrc && \
+    echo "onlyBuiltDependencies[]=prisma" >> .npmrc && \
+    echo "onlyBuiltDependencies[]=@scarf/scarf" >> .npmrc
 RUN pnpm install --frozen-lockfile
 
 FROM node:22-alpine AS builder
@@ -34,13 +34,12 @@ RUN npm install -g pnpm@latest --quiet
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
-RUN echo "allow-build[]=@nestjs/core" >> .npmrc && \
-    echo "allow-build[]=@prisma/client" >> .npmrc && \
-    echo "allow-build[]=@prisma/engines" >> .npmrc && \
-    echo "allow-build[]=prisma" >> .npmrc && \
-    echo "allow-build[]=@scarf/scarf" >> .npmrc
-#RUN pnpm install --frozen-lockfile --prod
-RUN cat .npmrc && pnpm install --frozen-lockfile --prod
+RUN echo "onlyBuiltDependencies[]=@nestjs/core" >> .npmrc && \
+    echo "onlyBuiltDependencies[]=@prisma/client" >> .npmrc && \
+    echo "onlyBuiltDependencies[]=@prisma/engines" >> .npmrc && \
+    echo "onlyBuiltDependencies[]=prisma" >> .npmrc && \
+    echo "onlyBuiltDependencies[]=@scarf/scarf" >> .npmrc
+RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/libs/shared/dist ./libs/shared/dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
