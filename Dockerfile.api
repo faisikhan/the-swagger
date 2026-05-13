@@ -31,10 +31,9 @@ COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
 RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/libs/shared/dist ./libs/shared/dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
+# Copy prisma generated client from pnpm store
+COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
 RUN addgroup --system --gid 1001 nodejs \
  && adduser --system --uid 1001 nestjs
 USER nestjs
