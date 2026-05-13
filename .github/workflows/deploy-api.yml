@@ -2,7 +2,7 @@ name: Deploy Swagger API to ECS
 
 on:
   push:
-    branches: [mainnnn]
+    branches: [main]
     paths:
       - 'apps/api/**'
       - 'libs/shared/**'
@@ -55,7 +55,7 @@ jobs:
           aws ecs describe-task-definition \
             --task-definition the-swagger-api \
             --query taskDefinition \
-            > ecs/task-definition-api-current.json
+            > task-definition-api-current.json
 
       - name: Update ECS task definition with new image
         id: task-def
