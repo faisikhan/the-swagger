@@ -4,17 +4,12 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
-RUN npm install -g pnpm@latest --quiet
-RUN echo "onlyBuiltDependencies[]=@nestjs/core" >> .npmrc && \
-    echo "onlyBuiltDependencies[]=@prisma/client" >> .npmrc && \
-    echo "onlyBuiltDependencies[]=@prisma/engines" >> .npmrc && \
-    echo "onlyBuiltDependencies[]=prisma" >> .npmrc && \
-    echo "onlyBuiltDependencies[]=@scarf/scarf" >> .npmrc
+RUN npm install -g pnpm@8 --quiet
 RUN pnpm install --frozen-lockfile
 
 FROM node:22-alpine AS builder
 WORKDIR /app
-RUN npm install -g pnpm@latest --quiet
+RUN npm install -g pnpm@8 --quiet
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/.npmrc ./.npmrc
 COPY . .
@@ -30,15 +25,10 @@ WORKDIR /app
 RUN apk add --no-cache wget
 ENV NODE_ENV=production
 ENV PORT=4200
-RUN npm install -g pnpm@latest --quiet
+RUN npm install -g pnpm@8 --quiet
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json ./apps/api/
 COPY libs/shared/package.json ./libs/shared/
-RUN echo "onlyBuiltDependencies[]=@nestjs/core" >> .npmrc && \
-    echo "onlyBuiltDependencies[]=@prisma/client" >> .npmrc && \
-    echo "onlyBuiltDependencies[]=@prisma/engines" >> .npmrc && \
-    echo "onlyBuiltDependencies[]=prisma" >> .npmrc && \
-    echo "onlyBuiltDependencies[]=@scarf/scarf" >> .npmrc
 RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/libs/shared/dist ./libs/shared/dist
