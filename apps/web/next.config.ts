@@ -5,12 +5,11 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   outputFileTracingRoot: path.join(__dirname, '../../'),
   reactStrictMode: true,
-  allowedDevOrigins: ['54.198.149.55'],
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://127.0.0.1:4200/api/:path*',
+        destination: `${process.env.API_BASE_URL ?? 'http://localhost:4200'}/api/:path*`,
       },
     ];
   },

@@ -14,6 +14,21 @@
     "db:seed": "cd apps/api && npx ts-node prisma/seed.ts",
     "prepare": "husky || true"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@biomejs/biome",
+      "@nestjs/core",
+      "@parcel/watcher",
+      "@prisma/client",
+      "@prisma/engines",
+      "@scarf/scarf",
+      "less",
+      "nx",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@nx/esbuild": "^22.7.1",
