@@ -4,12 +4,12 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
   "memory": "1024",
-  "executionRoleArn": "arn:aws:iam::559050236729:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::559050236729:role/ecsTaskRole",
+  "executionRoleArn": "arn:aws:iam::YOUR_ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::YOUR_ACCOUNT_ID:role/ecsTaskRole",
   "containerDefinitions": [
     {
       "name": "the-swagger-api",
-      "image": "559050236729.dkr.ecr.ap-south-1.amazonaws.com/the-swagger-api:latest",
+      "image": "YOUR_ACCOUNT_ID.dkr.ecr.YOUR_REGION.amazonaws.com/the-swagger-api:latest",
       "essential": true,
       "portMappings": [
         {
@@ -19,27 +19,32 @@
       ],
       "environment": [
         { "name": "NODE_ENV", "value": "production" },
-        { "name": "PORT", "value": "4200" }
+        { "name": "PORT", "value": "4200" },
+        { "name": "JWT_EXPIRES_IN", "value": "7d" }
       ],
       "secrets": [
         {
           "name": "DATABASE_URL",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:559050236729:secret:the-swagger/database-url"
+          "valueFrom": "arn:aws:secretsmanager:YOUR_REGION:YOUR_ACCOUNT_ID:secret:the-swagger/database-url-XXXXXX"
         },
         {
           "name": "JWT_SECRET",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:559050236729:secret:the-swagger/jwt-secret"
+          "valueFrom": "arn:aws:secretsmanager:YOUR_REGION:YOUR_ACCOUNT_ID:secret:the-swagger/jwt-secret-XXXXXX"
         },
         {
           "name": "COOKIE_SECRET",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:559050236729:secret:the-swagger/cookie-secret"
+          "valueFrom": "arn:aws:secretsmanager:YOUR_REGION:YOUR_ACCOUNT_ID:secret:the-swagger/cookie-secret-XXXXXX"
+        },
+        {
+          "name": "CORS_ORIGIN",
+          "valueFrom": "arn:aws:secretsmanager:YOUR_REGION:YOUR_ACCOUNT_ID:secret:the-swagger/cors-origin-XXXXXX"
         }
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
           "awslogs-group": "/ecs/the-swagger-api",
-          "awslogs-region": "ap-south-1",
+          "awslogs-region": "YOUR_REGION",
           "awslogs-stream-prefix": "ecs"
         }
       },
