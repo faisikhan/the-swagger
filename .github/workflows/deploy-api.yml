@@ -3,7 +3,12 @@ name: Deploy Swagger API to ECS
 on:
   push:
     branches: [main]
-
+    paths:
+      - 'apps/api/**'
+      - 'libs/shared/**'
+      - 'Dockerfile.api'
+      - 'docker-entrypoint.sh'
+      - '.github/workflows/deploy-api.yml'
 env:
   AWS_REGION: ap-south-1
   ECR_REPOSITORY: the-swagger-api
