@@ -210,18 +210,6 @@ CORS_ORIGIN=http://your-server-ip
 
 ---
 
-## Features
-
-- JWT authentication via HTTP-only cookies
-- Role-based access (Admin, Design Manager, Client, Contractor, Viewer)
-- Project management with status tracking and budget monitoring
-- Task management per project with comments
-- Team/user management
-- Swagger API documentation
-- Monorepo with shared types between frontend and backend
-
----
-
 ## Containerization (Docker)
 
 ### Prerequisites
@@ -294,6 +282,162 @@ See the [Test Accounts](#test-accounts) section above. The API container automat
 | API | 4200 |
 | PostgreSQL | 5432 |
 
+---
+
+## Deployment (AWS ECS + Fargate)
+
+This project is fully deployable to AWS ECS using Fargate. The API and Web run as separate ECS services behind a single Application Load Balancer. The database runs on Amazon RDS (PostgreSQL).
+
+### Architecture
+
+```
+Internet
+    │
+    ▼
+Application Load Balancer (swagger-lb)
+    │
+    ├── /api/*  ──▶  ECS Service: the-swagger-api  (port 4200)
+    │                      │
+    │                      ▼
+    │               Amazon RDS (PostgreSQL)
+    │
+    └── /*      ──▶  ECS Service: the-swagger-web  (port 4000)
+```
+
+### Prerequisites
+
+- AWS CLI configured
+- Docker installed
+- An ECS cluster named `the-swagger-cluster`
+- An Application Load Balancer with two target groups:
+  - `swagger-tg` → API (port 4200), path `/api/*`
+  - `swagger-web-tg` → Web (port 4000), default rule
+- Amazon RDS PostgreSQL instance
+- Two ECR repositories: `the-swagger-api` and `the-swagger-web`
+
+### IAM Roles Required
+
+Two IAM roles are needed with the `ecs-tasks.amazonaws.com` trust relationship:
+
+**ecsTaskExecutionRole** — attach these managed policies:
+- `AmazonECSTaskExecutionRolePolicy`
+- `SecretsManagerReadWrite`
+
+**ecsTaskRole** — attach these managed policies:
+- `SecretsManagerReadWrite`
+
+### Secrets Manager
+
+Store the following secrets in AWS Secrets Manager:
+
+```bash
+aws secretsmanager create-secret \
+  --name "the-swagger/database-url" \
+  --secret-string "postgresql://postgres:PASSWORD@YOUR_RDS_ENDPOINT:5432/the_swagger_dev?schema=public"
+
+aws secretsmanager create-secret \
+  --name "the-swagger/jwt-secret" \
+  --secret-string "your-jwt-secret"
+
+aws secretsmanager create-secret \
+  --name "the-swagger/cookie-secret" \
+  --secret-string "your-cookie-secret"
+
+aws secretsmanager create-secret \
+  --name "the-swagger/cors-origin" \
+  --secret-string "http://your-alb-dns"
+```
+
+### Task Definitions
+
+Task definition templates are in the `ecs/` directory:
+
+- `ecs/task-definition-api.json` — API task definition
+- `ecs/task-definition-web.json` — Web task definition
+
+Replace the following placeholders before registering:
+
+| Placeholder | Description |
+|---|---|
+| `YOUR_ACCOUNT_ID` | Your AWS account ID |
+| `YOUR_REGION` | Your AWS region (e.g. `ap-south-1`) |
+| `YOUR_ALB_DNS` | Your ALB DNS name |
+| `XXXXXX` | Secret ARN suffix from Secrets Manager |
+
+Register them via the ECS Console (Task Definitions → Create new task definition with JSON) or CLI:
+
+```bash
+aws ecs register-task-definition \
+  --cli-input-json file://ecs/task-definition-api.json \
+  --region YOUR_REGION
+
+aws ecs register-task-definition \
+  --cli-input-json file://ecs/task-definition-web.json \
+  --region YOUR_REGION
+```
+
+### CloudWatch Log Groups
+
+Create log groups before running the services:
+
+```bash
+aws logs create-log-group --log-group-name /ecs/the-swagger-api --region YOUR_REGION
+aws logs create-log-group --log-group-name /ecs/the-swagger-web --region YOUR_REGION
+```
+
+### ECS Services
+
+Create services via ECS Console → your cluster → Services → Create:
+
+| Setting | API Service | Web Service |
+|---|---|---|
+| Launch type | Fargate | Fargate |
+| Task definition | `the-swagger-api` | `the-swagger-web` |
+| Service name | `the-swagger-api-service` | `the-swagger-web-service` |
+| Desired tasks | 1 | 1 |
+| Load balancer | `swagger-lb` | `swagger-lb` |
+| Target group | `swagger-tg` | `swagger-web-tg` |
+
+> The API container automatically runs Prisma migrations and seeds the database on every startup.
+
+### CI/CD with GitHub Actions
+
+Two workflows handle automated deployments:
+
+| Workflow | File | Trigger |
+|---|---|---|
+| Deploy API | `.github/workflows/deploy-api.yml` | Push to `main` touching `apps/api/**` |
+| Deploy Web | `.github/workflows/deploy-web.yml` | Push to `main` touching `apps/web/**` |
+
+Add these secrets to your GitHub repository under Settings → Secrets → Actions:
+
+| Secret | Description |
+|---|---|
+| `AWS_ACCESS_KEY_ID` | IAM user access key |
+| `AWS_SECRET_ACCESS_KEY` | IAM user secret key |
+
+The IAM user behind these keys needs the following permissions:
+- `ecr:*` (push images)
+- `ecs:DescribeTaskDefinition`
+- `ecs:RegisterTaskDefinition`
+- `ecs:UpdateService`
+- `ecs:DescribeServices`
+- `iam:PassRole`
+
+---
+
+## Features
+
+- JWT authentication via HTTP-only cookies
+- Role-based access (Admin, Design Manager, Client, Contractor, Viewer)
+- Project management with status tracking and budget monitoring
+- Task management per project with comments
+- Team/user management
+- Swagger API documentation
+- Monorepo with shared types between frontend and backend
+
+---
+
 The app as in the final live version :)
 
 <img width="1521" height="836" alt="image" src="https://github.com/user-attachments/assets/051c2b8c-968b-47c5-abe5-50b3bbfdee0c" />
@@ -303,6 +447,3 @@ The app as in the final live version :)
 <img width="1860" height="736" alt="image" src="https://github.com/user-attachments/assets/d8f63d34-faaf-4386-b0a7-6f41a112cd51" />
 
 <img width="1883" height="807" alt="image" src="https://github.com/user-attachments/assets/5d11c722-79e4-453b-92ba-a0100377f72e" />
-
-
-
