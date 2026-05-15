@@ -4,12 +4,12 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::559050236729:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::559050236729:role/ecsTaskRole",
+  "executionRoleArn": "arn:aws:iam::YOUR_ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::YOUR_ACCOUNT_ID:role/ecsTaskRole",
   "containerDefinitions": [
     {
       "name": "the-swagger-web",
-      "image": "559050236729.dkr.ecr.ap-south-1.amazonaws.com/the-swagger-web:latest",
+      "image": "YOUR_ACCOUNT_ID.dkr.ecr.YOUR_REGION.amazonaws.com/the-swagger-web:latest",
       "essential": true,
       "portMappings": [
         {
@@ -23,14 +23,14 @@
         { "name": "HOSTNAME", "value": "0.0.0.0" },
         {
           "name": "NEXT_PUBLIC_API_URL",
-          "value": "http://swagger-lb-276631217.ap-south-1.elb.amazonaws.com/api/v1"
+          "value": "http://YOUR_ALB_DNS/api/v1"
         }
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
           "awslogs-group": "/ecs/the-swagger-web",
-          "awslogs-region": "ap-south-1",
+          "awslogs-region": "YOUR_REGION",
           "awslogs-stream-prefix": "ecs"
         }
       },
