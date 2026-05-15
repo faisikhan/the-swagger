@@ -222,6 +222,78 @@ CORS_ORIGIN=http://your-server-ip
 
 ---
 
+## Containerization (Docker)
+
+### Prerequisites
+
+- Docker installed
+- Create the shared network (one-time setup):
+
+```bash
+docker network create the-swagger-net
+```
+
+### Build Images
+
+```bash
+# Database
+docker build -f Dockerfile.db -t swagger-db:latest .
+
+# API
+docker build -f Dockerfile.api -t swagger-api:latest .
+
+# Web
+docker build -f Dockerfile.web -t swagger-web:latest .
+```
+
+### Run Containers
+
+Run in this order — DB must be up before the API starts.
+
+```bash
+# 1. Database
+docker run -d \
+  --name the-swagger-db \
+  --network the-swagger-net \
+  -p 5432:5432 \
+  -v postgres_data:/var/lib/postgresql/data \
+  swagger-db:latest
+
+# 2. API (migrations + seed run automatically on startup)
+docker run -d \
+  --name the-swagger-api \
+  --network the-swagger-net \
+  -p 4200:4200 \
+  -e DATABASE_URL="postgresql://postgres:postgres@the-swagger-db:5432/the_swagger_dev?schema=public" \
+  -e JWT_SECRET="your-super-secret-jwt-key-change-in-production" \
+  -e JWT_EXPIRES_IN="7d" \
+  -e PORT=4200 \
+  -e NODE_ENV=production \
+  -e COOKIE_SECRET="your-cookie-secret-change-in-production" \
+  -e CORS_ORIGIN="http://localhost:4000" \
+  swagger-api:latest
+
+# 3. Web
+docker run -d \
+  --name swagger-web \
+  --network the-swagger-net \
+  -p 4000:4000 \
+  -e API_BASE_URL=http://the-swagger-api:4200 \
+  swagger-web:latest
+```
+
+### Test Accounts
+
+See the [Test Accounts](#test-accounts) section above. The API container automatically runs migrations and seeds the database on first startup.
+
+### Ports
+
+| Service | Port |
+|---|---|
+| Web | 4000 |
+| API | 4200 |
+| PostgreSQL | 5432 |
+
 The app as in the final live version :)
 
 <img width="1521" height="836" alt="image" src="https://github.com/user-attachments/assets/051c2b8c-968b-47c5-abe5-50b3bbfdee0c" />
